@@ -1,18 +1,22 @@
 import React from 'react'
 import './Header.css'
+import SearchIcons from "@material-ui/icons/Search"
+import ShoppingBasketIcons from "@material-ui/icons/ShoppingBasket"
 
 function Header() {
   return (
     <div className='header'>
         <img 
             className='header__logo'
-            src='https://pngimg.com/uploads/amazon/amazon_PNG11.png' 
+            src='.\assets\amazon_PNG11.png' 
         />
 
         <div className="header__search">
             <input 
             className="header__searchInput"
             type="text" />
+            <SearchIcons 
+            className="header__searchIcon" />
         </div>
 
         <div className="header__nav" >
@@ -33,6 +37,13 @@ function Header() {
                 <span 
                 className="header__optionLineTwo" >Prime</span>
             </div>
+
+
+            <div className='header__optionBasket'>
+                <ShoppingBasketIcons />
+                <span className='header__optionLineTwo header__basketCount'>0</span>
+            </div>
+
         </div>
     </div>
   )
