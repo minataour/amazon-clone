@@ -2,16 +2,18 @@ import React from 'react'
 import './Payment.css'
 import { useStateValue } from './StateProvider'
 import CheckoutProduct from './CheckoutProduct'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { CardElement, useElements, useStripe } from '@stripe/react-stripe-js'
 import CurrencyFormat from 'react-currency-format'
 import { getBasketTotal } from './reducer'
+import axios from './axios'
 
 function Payment() {
     const [{basket, user}, dispatch] = useStateValue()
 
     const stripe = useStripe()
     const elements = useElements()
+    const navigate = useNavigate()
 
     /* maintaining states */
     const [succeeded, setSucceeded] = React.useState(false)
@@ -24,13 +26,15 @@ function Payment() {
         const getClientSecret = async () => {
             const response = await axios({
                 method: 'post',
-                url: `/payment/create?total=${getBasketTotal(basket) * 100}`
+                url: `/payments/create?total=${getBasketTotal(basket) * 100}`
             })
             setClientSecret(response.data.clientSecret)
         }
 
         getClientSecret()
     }, [basket])
+
+    console.log('********************', clientSecret)
 
     const handleSubmit = async (event) => {
         event.preventDefault()
@@ -40,6 +44,14 @@ function Payment() {
             payment_method: {
                 card: elements.getElement(CardElement)
             }
+        }).then(({paymentIntent}) => {
+            //paymentIntent = payment confirm response
+
+            setSucceeded(true)
+            setError(null)
+            setProcessing(false)
+
+            navigate('/orders' , {replace: true})
         })
     }
 
