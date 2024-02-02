@@ -22,38 +22,80 @@ function Payment() {
     const [disabled, setDisabled] = React.useState(true)
     const [clientSecret, setClientSecret] = React.useState(true)
 
-    React.useEffect(() => {
-        const getClientSecret = async () => {
-            const response = await axios({
-                method: 'post',
-                url: `/payments/create?total=${getBasketTotal(basket) * 100}`
-            })
-            setClientSecret(response.data.clientSecret)
-        }
+    // React.useEffect(() => {
+    //     const getClientSecret = async () => {
+            // const total = (getBasketTotal(basket) * 100).toFixed(2)
+            // const response = await axios({
+            //     method: 'post',
+            //     url: `/payments/create`,
+            //     data: {
+            //         total: total
+            //     }
+            // })
+            // setClientSecret(response.data.clientSecret)
+    //     }
 
-        getClientSecret()
-    }, [basket])
+    //     getClientSecret()
+    // }, [basket])
+    
+    // console.log(clientSecret)
+    // const handleSubmit = async (event) => {
+    //     event.preventDefault()
+    //     setProcessing(true)
 
-    console.log('********************', clientSecret)
+    //     const payload = await stripe.confirmCardPayment(clientSecret, {
+    //         payment_method: {
+    //             card: elements.getElement(CardElement)
+    //         }
+    //     }).then(({paymentIntent}) => {
+    //         //paymentIntent = payment confirm response
+
+    //         setSucceeded(true)
+    //         setError(null)
+    //         setProcessing(false)
+    //         navigate('/' , {replace: true})
+    //     })
+    // }
 
     const handleSubmit = async (event) => {
-        event.preventDefault()
-        setProcessing(true)
-
-        const payload = await stripe.confirmCardPayment(clientSecret, {
-            payment_method: {
-                card: elements.getElement(CardElement)
+        event.preventDefault();
+        setProcessing(true);
+    
+        try {
+            // Fetch client secret when the user submits the form
+            const total = (getBasketTotal(basket) * 100).toFixed(0)
+            const response = await axios({
+                method: 'post',
+                url: `/payments/create`,
+                data: {
+                    total: total
+                }
+            })
+            setClientSecret(response.data.clientSecret)
+    
+            // Initiate payment with Stripe
+            const payload = await stripe.confirmCardPayment(clientSecret, {
+                payment_method: {
+                    card: elements.getElement(CardElement)
+                }
+            });
+    
+            // Handle payment response
+            if (payload.paymentIntent) {
+                setSucceeded(true);
+                setError(null);
+                setProcessing(false);
+                navigate('/', { replace: true });
+            } else {
+                setError('Payment fail');
+                setProcessing(false);
             }
-        }).then(({paymentIntent}) => {
-            //paymentIntent = payment confirm response
-
-            setSucceeded(true)
-            setError(null)
-            setProcessing(false)
-
-            navigate('/orders' , {replace: true})
-        })
-    }
+        } catch (error) {
+            setError('Payment failed');
+            setProcessing(false);
+            console.error('Error processing payment:', error);
+        }
+    };
 
     const handleChange = event => {
         setDisabled(event.empty)
@@ -87,11 +129,11 @@ function Payment() {
                 <div className='payment__items'>
                     {basket.map(item => (
                         <CheckoutProduct 
-                        id={item.id}
-                        title={item.title}
-                        image={item.image}
-                        price={item.price}
-                        reating={item.rating}
+                            id={item.id}
+                            title={item.title}
+                            image={item.image}
+                            price={item.price}
+                            rating={item.rating}
                         />
                     ))}
                 </div>

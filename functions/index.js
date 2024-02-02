@@ -7,7 +7,7 @@
  * See a full list of supported triggers at https://firebase.google.com/docs/functions
  */
 
-const {onRequest} = require("firebase-functions/v2/https");
+const functions = require("firebase-functions");
 const logger = require("firebase-functions/logger");
 
 const express = require("express")
@@ -26,14 +26,16 @@ app.use(express.json())
 //API routes
 app.get('/', (request, response) => response.status(200).send('hello world'))
 
+
+
 app.post('/payments/create', async (request, response) => {
-    const total = request.query.total
+    const total = request.body.total
 
     console.log('Payment Request Recieved BOOM!!! >>>', total)
 
-    const paymentIntent = await stripe.paymentIntent.create({
+    const paymentIntent = await stripe.paymentIntents.create({
         amount: total, // currency in subunits
-        currency: "usd",
+        currency: "inr",
     })
 
     response.status(201).send({
@@ -42,7 +44,7 @@ app.post('/payments/create', async (request, response) => {
 })
 
 //Listen command
-exports.api = onRequest(app)
+exports.api = functions.https.onRequest(app)
 
 // http://127.0.0.1:5001/project-94a17/us-central1/api
 
