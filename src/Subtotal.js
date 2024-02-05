@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom'
 
 function Subtotal() {
     const navigate = useNavigate()
-    const [{basket}, dispatch] = useStateValue()
+    const [{basket, user}, dispatch] = useStateValue()
 
   return (
     <div className='subtotal'>
@@ -28,8 +28,11 @@ function Subtotal() {
             thousandSeparator={true}
             prefix={"$"}
         />
-
+        {!user ? <button onClick={e => navigate('/login') }>Login your account</button> : 
         <button onClick={e => basket.length > 0 ? navigate('/payment') : "" }>Proceed to checkout</button>
+        }
+
+        
     </div>
   )
 }
