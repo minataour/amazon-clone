@@ -8,45 +8,41 @@
  */
 
 const functions = require("firebase-functions");
-const logger = require("firebase-functions/logger");
 
-const express = require("express")
-const cors = require("cors")
-const stripe = require("stripe")('sk_test_51Odw3jSBMlOHYrbAabhBHEbN6uFUTCGfzbhskuu00SgmK60zRgFKLjMILEqcb5oS0v38rGLKyYOpH3UcjVeTpKcM005aQ5kbdO')
+const express = require("express");
+const cors = require("cors");
+const stripe = require("stripe")("sk_test_51Odw3jSBMlOHYrbAabhBHEbN6uFUTCGfzbhskuu00SgmK60zRgFKLjMILEqcb5oS0v38rGLKyYOpH3UcjVeTpKcM005aQ5kbdO");
+// API
 
-//API
+// API config
+const app = express();
 
-//API config
-const app = express()
+// Middlewares
+app.use(cors({ origin: true }));
+app.use(express.json());
 
-//Middlewares
-app.use(cors({ origin: true }))
-app.use(express.json())
+// API routes
+app.get("/", (request, response) => response.status(200).send("hello world"));
 
-//API routes
-app.get('/', (request, response) => response.status(200).send('hello world'))
+app.post("/payments/create", async (request, response) => {
+    const total = request.body.total;
 
-
-
-app.post('/payments/create', async (request, response) => {
-    const total = request.body.total
-
-    console.log('Payment Request Recieved BOOM!!! >>>', total)
+    console.log('Payment Request Recieved BOOM!!! >>>', total);
 
     const paymentIntent = await stripe.paymentIntents.create({
         amount: total, // currency in subunits
         currency: "inr",
-        description: 'comin through',
-        customer: 'cus_PTeAEKRmrYOA3i'
-    })
+        description: "comin through",
+        customer: "cus_PTeAEKRmrYOA3i",
+    });
 
     response.status(201).send({
         clientSecret: paymentIntent.client_secret,
-    })
-})
+    });
+});
 
-//Listen command
-exports.api = functions.https.onRequest(app)
+// Listen command
+exports.api = functions.https.onRequest(app);
 
 // http://127.0.0.1:5001/project-94a17/us-central1/api
 
